@@ -1,0 +1,83 @@
+local function set_unifroms(self)
+	-- Push per-frame shader uniforms: time/resolution/scroll + current mouse position.
+	go.set("#sprite", "time_res_scroll", vmath.vector4(self.time, self.width, self.height, self.scroll))
+	go.set("#sprite", "mouse", vmath.vector4(self.mouse_x, self.mouse_y, -1, -1))
+end
+
+local function update_resolution(self)
+	local width, height = window.get_size()
+
+	if width ~= self.width or height ~= self.height then
+		if self.width > 0 and self.height > 0 then
+			-- Keep mouse anchored to the same relative point when the window is resized.
+			if self.mouse_x >= 0 then
+				self.mouse_x = self.mouse_x * width / self.width
+			end
+			if self.mouse_y >= 0 then
+				self.mouse_y = self.mouse_y * height / self.height
+			end
+		end
+
+		self.width = width
+		self.height = height
+	end
+end
+
+function init(self)
+	self.time = 0
+	self.scroll = 0
+	self.width = 0
+	self.height = 0
+	self.mouse_x = -1
+	self.mouse_y = -1
+
+	msg.post(".", "acquire_input_focus")
+	update_resolution(self)
+	set_unifroms(self)
+end
+
+function update(self, dt)
+	self.time = self.time + dt
+	update_resolution(self)
+	set_unifroms(self)
+end
+
+local ACTION_SCROLL_UP = hash("mouse_wheel_up")
+local ACTION_SCROLL_DOWN = hash("mouse_wheel_down")
+
+function on_input(self, action_id, action)
+	-- Prefer screen-space coordinates (desktop), fallback to generic x/y.
+	local mouse_x = action.screen_x or action.x
+	local mouse_y = action.screen_y or action.y
+
+	if mouse_x and mouse_y then
+		self.mouse_x = mouse_x
+		self.mouse_y = mouse_y
+	end
+
+	local direction
+
+	-- Scroll events are accumulated and forwarded in time_res_scroll.w.
+	if action_id == ACTION_SCROLL_UP then
+		direction = 1
+	elseif action_id == ACTION_SCROLL_DOWN then
+		direction = -1
+	else
+		return false
+	end
+
+	local amount = action.value or 0
+	if amount == 0 and action.pressed then
+		amount = 1
+	end
+	if amount == 0 then
+		return false
+	end
+
+	self.scroll = self.scroll + (direction * amount)
+	return true
+end
+
+function final(self)
+	msg.post(".", "release_input_focus")
+end
