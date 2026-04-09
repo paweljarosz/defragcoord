@@ -2,11 +2,11 @@
 
 This is a simple FragCoord - Defold migration guide.
 
-You can test your shaders in [FragCoord.xyz](https://fragcoord.xyz/) online tool by XorDev and then use them in Defold!
+You can test your shaders in [FragCoord.xyz](https://fragcoord.xyz/) online tool by XorDev and then use them in Defold. In Defold 1.12.3 and newer, engine time can now come directly from the material via `CONSTANT_TYPE_TIME`.
 
 ## Guide
 
-The whole migration is only based on adjusting to the different naming used in FragCoord shaders (hence defines). It's not perfect, but should work with most of the shaders from there. You need to:
+The whole migration is mostly based on adjusting to the different naming used in FragCoord shaders (hence the defines). It is not perfect, but it should work with most shaders from there. In Defold 1.12.3+, you no longer need to push time manually from script. You need to:
 
 1. Paste this fragment on top of your Defold fragment program:
 
@@ -20,12 +20,16 @@ out vec4 out_fragColor;
 uniform mediump sampler2D texture_sampler;
 uniform fs_uniforms
 {
-    mediump vec4 time_res_scroll;
+    vec4 time;
+    mediump vec4 res_scroll;
+    mediump vec4 mouse;
 };
 
-#define u_time time_res_scroll.x
-#define u_resolution time_res_scroll.yz
-#define u_scroll time_res_scroll.w
+#define u_time time.x
+#define u_dt time.y
+#define u_resolution res_scroll.xy
+#define u_scroll res_scroll.z
+#define u_mouse mouse
 #define fragColor out_fragColor
 
 // ------------------------------------------------------
@@ -48,9 +52,16 @@ void main()
 }
 ```
 
-3. Then, you need to provide the used uniforms to the shader. Most of the shaders need time and resolution, sometimes mouse input. If the shader from FragCoord provides custom uniforms, you would need to either provide them, or define default values (e.g. like in `the_card_game.fp` example).
+3. Then set the material constants to match the block:
 
-Example script that provides time, resolution, mouse scroll and position is provided in `main/uniforms.script` in this repository.
+- `time` as `CONSTANT_TYPE_TIME`
+- `res_scroll` as `CONSTANT_TYPE_USER`
+- `mouse` as `CONSTANT_TYPE_USER`
+- `tint` as `CONSTANT_TYPE_USER` when your shader uses it
+
+`time.x` is the time since engine start and `time.y` is the frame `dt`, so the defines above expose those as `u_time` and `u_dt`.
+
+Example script that provides resolution, mouse scroll and position is provided in `main/uniforms.script` in this repository. Time and `dt` now come from the engine through the material.
 
 ## Examples
 

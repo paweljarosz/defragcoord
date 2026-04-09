@@ -17,7 +17,11 @@ fragment_constants {
   }
 }
 fragment_constants {
-  name: "time_res_scroll"
+  name: "time"
+  type: CONSTANT_TYPE_TIME
+}
+fragment_constants {
+  name: "res_scroll"
   type: CONSTANT_TYPE_USER
   value {
   }

@@ -1,6 +1,6 @@
-local function set_unifroms(self)
-	-- Push per-frame shader uniforms: time/resolution/scroll + current mouse position.
-	go.set("#sprite", "time_res_scroll", vmath.vector4(self.time, self.width, self.height, self.scroll))
+local function set_uniforms(self)
+	-- Push per-frame shader uniforms: resolution/scroll + current mouse position.
+	go.set("#sprite", "res_scroll", vmath.vector4(self.width, self.height, self.scroll, 0))
 	go.set("#sprite", "mouse", vmath.vector4(self.mouse_x, self.mouse_y, -1, -1))
 end
 
@@ -24,7 +24,6 @@ local function update_resolution(self)
 end
 
 function init(self)
-	self.time = 0
 	self.scroll = 0
 	self.width = 0
 	self.height = 0
@@ -33,13 +32,12 @@ function init(self)
 
 	msg.post(".", "acquire_input_focus")
 	update_resolution(self)
-	set_unifroms(self)
+	set_uniforms(self)
 end
 
-function update(self, dt)
-	self.time = self.time + dt
+function update(self, _dt)
 	update_resolution(self)
-	set_unifroms(self)
+	set_uniforms(self)
 end
 
 local ACTION_SCROLL_UP = hash("mouse_wheel_up")
@@ -57,7 +55,7 @@ function on_input(self, action_id, action)
 
 	local direction
 
-	-- Scroll events are accumulated and forwarded in time_res_scroll.w.
+	-- Scroll events are accumulated and forwarded in res_scroll.z.
 	if action_id == ACTION_SCROLL_UP then
 		direction = 1
 	elseif action_id == ACTION_SCROLL_DOWN then

@@ -10,7 +10,7 @@ embedded_instances {
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
   "  data: \"default_animation: \\\"anim\\\"\\n"
-  "material: \\\"/defragcoord_examples/the_card_game/sprite.material\\\"\\n"
+  "material: \\\"/defragcoord_examples/rainbow/sprite.material\\\"\\n"
   "size {\\n"
   "  x: 640.0\\n"
   "  y: 640.0\\n"

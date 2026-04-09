@@ -8,13 +8,15 @@ uniform mediump sampler2D texture_sampler;
 uniform fs_uniforms
 {
     mediump vec4 tint;
-    mediump vec4 time_res_scroll;
+    vec4 time;
+    mediump vec4 res_scroll;
     mediump vec4 mouse;
 };
 
-#define u_time time_res_scroll.x
-#define u_resolution time_res_scroll.yz
-#define u_scroll time_res_scroll.w
+#define u_time time.x
+#define u_dt time.y
+#define u_resolution res_scroll.xy
+#define u_scroll res_scroll.z
 #define u_mouse mouse
 #define fragColor out_fragColor
 
